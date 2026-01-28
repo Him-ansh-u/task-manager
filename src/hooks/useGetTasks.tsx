@@ -7,12 +7,17 @@ const useGetTasks = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchTasks = useCallback(async () => {
+  const fetchTasks = useCallback(async (showLoader: boolean = false) => {
     try {
-      setLoading(true);
+      if (showLoader) {
+        setLoading(true);
+      }
+
       setError("");
 
-      const res = await fetch(TASKS_API);
+      const res = await fetch(TASKS_API, {
+        cache: "no-store",
+      });
 
       if (!res.ok) throw new Error("Failed to fetch tasks");
 
@@ -22,12 +27,14 @@ const useGetTasks = () => {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(true);
   }, [fetchTasks]);
 
   return {
@@ -37,4 +44,5 @@ const useGetTasks = () => {
     refetch: fetchTasks,
   };
 };
+
 export default useGetTasks;

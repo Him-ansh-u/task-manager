@@ -1,5 +1,7 @@
 import { FormEvent, useCallback, useState } from "react";
 import Button from "../Button";
+import { TASKS_API } from "@/constants/endpoints";
+import { toast } from "sonner";
 
 const CreateTask = ({
   refetch,
@@ -13,31 +15,37 @@ const CreateTask = ({
   const onSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      console.log(title);
+
       try {
-        const res = await fetch("/api/tasks", {
+        toast.loading("Creating task...", { id: "create-task" });
+
+        const res = await fetch(TASKS_API, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title }),
+          cache: "no-store",
         });
 
         if (!res.ok) {
-          // Try to read error message from API
           const errorData = await res.json().catch(() => null);
           throw new Error(errorData?.message || "Failed to create task");
-        } else {
-          refetch();
-          onClose();
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("API Error:", error.message);
-          throw error;
         }
 
-        throw new Error("Something went wrong");
+        await res.json();
+
+        toast.success("Task created successfully", { id: "create-task" });
+
+        // small delay avoids backend consistency race
+        await new Promise((r) => setTimeout(r, 150));
+
+        await refetch();
+        onClose();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+        toast.error(errorMessage);
+      } finally {
+        setTitle("");
       }
     },
     [title, onClose, refetch],

@@ -6,7 +6,7 @@ export async function DELETE(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   { params }: any
 ) {
-  const { id } = params
+  const { id } = await params
 
   const supabase = await createSupabaseServerClient()
 

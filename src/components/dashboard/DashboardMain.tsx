@@ -1,38 +1,61 @@
 "use client";
-import { useState, useCallback, useMemo, Suspense } from "react";
+import { useState, useCallback, useMemo, Suspense, useEffect } from "react";
 import CreateTask from "./CreateTask";
 import Task from "./Task";
 import useGetTasks from "@/hooks/useGetTasks";
 import { TASKS_API } from "@/constants/endpoints";
+import { toast } from "sonner";
 
 const DashboardMain = () => {
   const { tasks, loading, refetch, error } = useGetTasks();
-  const [isCreating, setIsCreating] = useState(false);
-  console.log(loading, error)
-
+  const [openCreateSection, setOpenCreateSection] = useState(false);
   const totalTasks = useMemo(() => tasks.length, [tasks]);
 
-  const handleDelete = useCallback(async(id:string) => {
+const handleDelete = useCallback(
+  async (id: string) => {
     try {
+      toast.loading("Deleting task...", { id: "delete-task" });
+
       const res = await fetch(`${TASKS_API}/${id}`, {
         method: "DELETE",
+        cache: "no-store",
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => null);
         throw new Error(errorData?.message || "Failed to delete task");
-      }else{
-        refetch()
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Delete error:", error.message);
-        throw error;
       }
 
-      throw new Error("Something went wrong while deleting");
+      toast.success("Task deleted successfully", { id: "delete-task" });
+
+      await refetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Something went Wrong";
+      toast.error(errorMessage);
     }
-  }, [refetch]);
+  },
+  [refetch]
+);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error: ${error}`);
+    }
+  }, [error]);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <img
+          src={"/loading.gif"}
+          height={50}
+          width={50}
+          alt="Loading"
+          style={{ zIndex: 10 }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -43,7 +66,7 @@ const DashboardMain = () => {
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-600">Total tasks: {totalTasks}</p>
             <button
-              onClick={() => setIsCreating(true)}
+              onClick={() => setOpenCreateSection(true)}
               className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
             >
               + New Task
@@ -53,12 +76,12 @@ const DashboardMain = () => {
       </header>
 
       {/* Create Form (Lazy Loaded) */}
-      {isCreating && (
+      {openCreateSection && (
         <Suspense fallback={<div className="px-8 py-4">Loading form...</div>}>
           <CreateTask
             refetch={refetch}
             onClose={() => {
-              setIsCreating(false);
+              setOpenCreateSection(false);
             }}
           />
         </Suspense>
