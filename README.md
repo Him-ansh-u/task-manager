@@ -1,4 +1,4 @@
-# 📘 Technical Decisions & Architecture Notes
+# Design & Thinking Questions
 
 ## 1. Why did you choose Supabase for this assignment?
 
