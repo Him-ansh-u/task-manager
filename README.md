@@ -20,11 +20,11 @@ following good architectural practices.
 I would consider **Firebase** if:
 
 -   The application requires heavy real-time features (e.g., chat, live
-    collaboration)\
+    collaboration)
 -   The team prefers **NoSQL** over relational databases
 -   Deep integration with **Google services** is required
 
-**Summary:**\
+**Summary:**
 - Supabase → Better for structured data, relational schemas, and SQL
 - Firebase → Better for real-time-first, NoSQL-heavy systems
 
