@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+1. Why did you choose Firebase or Supabase for this assignment?
+Superbase provides authentication, PostgreSQL database, and Row Level Security out of the box so it is ideal for building this type of apps 
+It integrates well and is pretty easy to use.
 
-## Getting Started
 
-First, run the development server:
+2. What would make you choose Firebase instead in production?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+I would consider Firebase if:
+  - The application requires heavy real-time features (chat, collaboration)
+  - The team prefers NoSQL over relational databases
+  - Deep integration with Google services is needed
+Supabase is better suited when relational data, structured schemas, and SQL querying are important.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. If this app suddenly gets 10,000 active users,what are the first 3 problems or bottlenecks you expect, and how would you address them?
+    - Database load
+       Increased read/write operations on the tasks table 
+       Solution: Adding proper indexes, introducing pagination, and caching using Redis can be implemented.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    - Serverless API scaling
+       High traffic on Vercel serverless functions
+       Solution: Usage of Edge Functions for read-heavy endpoints or introducing a dedicated backend service can be considered.
 
-## Learn More
+    - Session & auth overhead
+        Repeated auth checks per request.
+        Solution: Optimize middleware, reduce unnecessary auth calls, and use caching where possible.
 
-To learn more about Next.js, take a look at the following resources:
+4. One design or technical decision you made that you know is not ideal, but accepted due to time constraints.
+The assignment is pretty simple (only title, id, user_id, timestamps).
+In a real production system:
+    - Task completion status
+    - Usage of tanstack query instead of custom hook
+    - Validation schema (e.g., Zod)
+    - Pagination
+    - Better error boundaries
+    - Activity logs
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For this assignment, I focused on correctness and clarity over unmentioned requirements.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. How would you modify the system if:
+   - Firebase/Supabase is removed
+      - use a custom backend
+      - Implement authentication using JWT and move it to BE for security
+      The current architecture already separates concerns, so this change would be manageable.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   - Role-based access is introduced
+      - Add a role field to a profiles table
+      - Enforce role checks in middleware and APIs
+      - Update database policies to restrict actions based on role
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+   - Activity/audit logs are required
+      - Create an activity_logs table with details like (user_id, action, metadata, timestamp)
+      - Log important actions inside API routes
+      - Optionally expose admin-only audit views
