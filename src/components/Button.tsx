@@ -17,7 +17,7 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyles =
-    "px-6 py-2 rounded-md transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
+    "px-6 py-2 cursor-pointer rounded-md transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
 
   const variants: Record<ButtonVariant, string> = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",

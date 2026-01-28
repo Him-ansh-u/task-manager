@@ -5,37 +5,41 @@ import Task from "./Task";
 import useGetTasks from "@/hooks/useGetTasks";
 import { TASKS_API } from "@/constants/endpoints";
 import { toast } from "sonner";
+import Button from "../Button";
+import { LuLogOut } from "react-icons/lu";
+import { logoutUser } from "@/lib/auth";
 
 const DashboardMain = () => {
   const { tasks, loading, refetch, error } = useGetTasks();
   const [openCreateSection, setOpenCreateSection] = useState(false);
   const totalTasks = useMemo(() => tasks.length, [tasks]);
 
-const handleDelete = useCallback(
-  async (id: string) => {
-    try {
-      toast.loading("Deleting task...", { id: "delete-task" });
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        toast.loading("Deleting task...", { id: "delete-task" });
 
-      const res = await fetch(`${TASKS_API}/${id}`, {
-        method: "DELETE",
-        cache: "no-store",
-      });
+        const res = await fetch(`${TASKS_API}/${id}`, {
+          method: "DELETE",
+          cache: "no-store",
+        });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || "Failed to delete task");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null);
+          throw new Error(errorData?.message || "Failed to delete task");
+        }
+
+        toast.success("Task deleted successfully", { id: "delete-task" });
+
+        await refetch();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Something went Wrong";
+        toast.error(errorMessage);
       }
-
-      toast.success("Task deleted successfully", { id: "delete-task" });
-
-      await refetch();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Something went Wrong";
-      toast.error(errorMessage);
-    }
-  },
-  [refetch]
-);
+    },
+    [refetch],
+  );
 
   useEffect(() => {
     if (error) {
@@ -63,14 +67,24 @@ const handleDelete = useCallback(
       <header className="bg-white border-b border-gray-200 px-8 py-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
-          <div className="flex items-center gap-4">
-            <p className="text-sm text-gray-600">Total tasks: {totalTasks}</p>
-            <button
-              onClick={() => setOpenCreateSection(true)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          <div className="flex gap-2">
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-gray-600">Total tasks: {totalTasks}</p>
+              <button
+                onClick={() => setOpenCreateSection(true)}
+                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                + New Task
+              </button>
+            </div>
+            <Button
+              variant="secondary"
+              title="Logout"
+              onClick={logoutUser}
+              className="rounded-full"
             >
-              + New Task
-            </button>
+              <LuLogOut />
+            </Button>
           </div>
         </div>
       </header>
