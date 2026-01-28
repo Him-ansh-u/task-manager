@@ -47,7 +47,7 @@ const SignUp = () => {
   };
 
   return (
-    <main className="flex justify-center items-center h-screen">
+    <main className="flex justify-center items-center h-screen px-3">
       <AuthForm
         type="signup"
         values={authData}

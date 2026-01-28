@@ -47,7 +47,7 @@ const Login = () => {
   };
 
   return (
-    <main className="flex justify-center items-center h-screen">
+    <main className="flex justify-center items-center h-screen p-3">
       <AuthForm
         type="login"
         values={authData}

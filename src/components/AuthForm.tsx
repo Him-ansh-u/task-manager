@@ -26,12 +26,12 @@ export default function AuthForm({
   const { email, password } = values || {};
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full items-center">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Task Manager</h1>
         <p className="text-gray-600 mt-2">Welcome back</p>
       </div>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 w-96">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 w-full md:w-96">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">
           {isLogin ? "Log in" : "Create account"}
         </h1>

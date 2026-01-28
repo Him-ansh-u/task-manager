@@ -11,11 +11,12 @@ const CreateTask = ({
   onClose: () => void;
 }) => {
   const [title, setTitle] = useState("");
+  const [isLoading, setIsLoading]= useState(false)
 
   const onSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-
+      setIsLoading(true);
       try {
         toast.loading("Creating task...", { id: "create-task" });
 
@@ -35,7 +36,6 @@ const CreateTask = ({
 
         toast.success("Task created successfully", { id: "create-task" });
 
-        // small delay avoids backend consistency race
         await new Promise((r) => setTimeout(r, 150));
 
         await refetch();
@@ -45,6 +45,7 @@ const CreateTask = ({
           err instanceof Error ? err.message : "Unknown error";
         toast.error(errorMessage);
       } finally {
+        setIsLoading(false);
         setTitle("");
       }
     },
@@ -52,24 +53,44 @@ const CreateTask = ({
   );
 
   return (
-    <div className="bg-blue-50 border-b border-blue-200 px-8 py-4">
-      <form onSubmit={onSubmit} className="flex gap-3">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter task name"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          autoFocus
-        />
-        <Button variant="primary" type="submit">
-          Create
-        </Button>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-      </form>
-    </div>
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+      />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-200 p-6 animate-in fade-in zoom-in">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Create new task
+          </h2>
+
+          <form onSubmit={onSubmit} className="space-y-4">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+              maxLength={80}
+            />
+
+            <div className="flex gap-2 justify-end">
+              <Button variant="secondary" type="button" onClick={onClose}>
+                Cancel
+              </Button>
+
+              <Button variant="primary" type="submit" isLoading={isLoading}>
+                Create
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 };
 

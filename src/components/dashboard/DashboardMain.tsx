@@ -1,13 +1,13 @@
 "use client";
 import { useState, useCallback, useMemo, Suspense, useEffect } from "react";
 import CreateTask from "./CreateTask";
-import Task from "./Task";
 import useGetTasks from "@/hooks/useGetTasks";
 import { TASKS_API } from "@/constants/endpoints";
 import { toast } from "sonner";
 import Button from "../Button";
 import { LuLogOut } from "react-icons/lu";
 import { logoutUser } from "@/lib/auth";
+import TasksTable from "./Table";
 
 const DashboardMain = () => {
   const { tasks, loading, refetch, error } = useGetTasks();
@@ -62,26 +62,29 @@ const DashboardMain = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white relative">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-8 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
-          <div className="flex gap-2">
-            <div className="flex items-center gap-4">
-              <p className="text-sm text-gray-600">Total tasks: {totalTasks}</p>
-              <button
-                onClick={() => setOpenCreateSection(true)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                + New Task
-              </button>
-            </div>
+      <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Task Manager
+          </h1>
+
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <p className="text-sm text-gray-600">Total tasks: {totalTasks}</p>
+
+            <Button
+              variant="primary"
+              onClick={() => setOpenCreateSection(true)}
+            >
+              + New Task
+            </Button>
+
             <Button
               variant="secondary"
               title="Logout"
               onClick={logoutUser}
-              className="rounded-full"
+              className="absolute md:relative w-12 h-12 max-md:p-0 top-4 right-4 md:top-auto md:right-auto max-md:rounded-full md:w-auto justify-center"
             >
               <LuLogOut />
             </Button>
@@ -102,45 +105,7 @@ const DashboardMain = () => {
       )}
 
       {/* Table */}
-      <div className="flex-1 overflow-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 sticky top-0">
-            <tr>
-              <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900 border-b">
-                Task Name
-              </th>
-              <th className="px-8 py-4 text-right text-sm font-semibold text-gray-900 border-b w-32">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tasks.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={2}
-                  className="px-8 py-24 text-center text-gray-500"
-                >
-                  No tasks yet. Click &quot;New Task&quot; to create one!
-                </td>
-              </tr>
-            ) : (
-              <Suspense
-                fallback={
-                  <tr>
-                    <td className="px-8 py-4">Loading tasks...</td>
-                  </tr>
-                }
-              >
-                {tasks.map((task) => (
-                  <Task key={task.id} task={task} onDelete={handleDelete} />
-                ))}
-              </Suspense>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <TasksTable tasks={tasks} onDelete={handleDelete} />
     </div>
   );
 };
